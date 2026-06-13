@@ -527,6 +527,7 @@ onUnmounted(() => {
                                 {{ location.parking }}
                             </p>
                             <p
+                                v-if="location.animals"
                                 class="mt-3 text-sm leading-relaxed text-[#3D2C35]/75"
                             >
                                 {{ location.animals }}
@@ -627,7 +628,8 @@ onUnmounted(() => {
                 <p
                     class="mt-10 text-center font-serif text-2xl leading-relaxed text-[#3D2C35]/90 italic sm:text-3xl"
                 >
-                    Klä er i det ni känner er bekväma i. Vi gillar att klä upp oss, men vill ni komma i flannelpyjamas så går det också bra.
+                    Klä er i det ni känner er bekväma i. Vi gillar att klä upp oss, men vill ni komma i
+                    flannelpyjamas så går det också bra.
                 </p>
             </section>
         </main>
