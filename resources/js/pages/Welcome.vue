@@ -1,413 +1,965 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, ref } from 'vue';
+import FloralDivider from '../components/FloralDivider.vue';
+import BotanicalFlower from '../components/BotanicalFlower.vue';
+
+const sections = [
+    { id: 'dagen', label: 'Dagen' },
+    { id: 'platser', label: 'Platser' },
+    { id: 'picknick', label: 'Picknick' },
+    { id: 'gavor', label: 'Inga gåvor' },
+    { id: 'kladsel', label: 'Klädsel' },
+];
+
+const locations = [
+    {
+        label: 'Vigsel',
+        name: 'Erlandstorp',
+        time: 'Kl. 14:00',
+        parking:
+            'Parkera längs vägen, framför garaget eller på stallplan.',
+        animals:
+            'På Erlandstorp finns hästar, får, hundar och katter.',
+        mapUrl: 'https://maps.app.goo.gl/AFJTfsf56wWRnJts6',
+        embedUrl:
+            'https://maps.google.com/maps?q=58.9767663,16.5945245&hl=sv&z=15&t=h&output=embed',
+    },
+    {
+        label: 'Picknick',
+        name: 'Gripensnäs 3',
+        time: 'Drop in från kl. 15:30',
+        parking:
+            'Parkera på grusplanen innan och framför ladugården, eller längs vägen fram till herrgården — det går bra i alla väder. Gräsmattan framför huset går att använda endast vid torrt väder.',
+        animals: 'På Gripensnäs finns våra katter Sixten och Wilma. Om ni har tur kanske ni kan få se en ko eller två eller en fasan.',
+        mapUrl: 'https://maps.app.goo.gl/858kHGPnCnJdh4HN9',
+        embedUrl:
+            'https://maps.google.com/maps?q=58.9399569,16.5859769&hl=sv&z=15&t=h&output=embed',
+    },
+];
+
+const activeSection = ref('');
+const navVisible = ref(false);
+const mobileMenuOpen = ref(false);
+const scrollY = ref(0);
+const prefersReducedMotion = ref(false);
+
+let sectionObserver: IntersectionObserver | undefined;
+
+function blobParallax(scrollFactor: number, horizontalFactor?: number): string {
+    if (prefersReducedMotion.value) {
+        return '';
+    }
+
+    const x = scrollY.value * (horizontalFactor ?? scrollFactor * 0.3);
+    const y = scrollY.value * scrollFactor;
+
+    return `translate3d(${x}px, ${y}px, 0)`;
+}
+
+function handleScroll(): void {
+    scrollY.value = window.scrollY;
+    navVisible.value = window.scrollY > 120;
+
+    const scrollPosition = window.scrollY + window.innerHeight / 3;
+    let current = '';
+
+    for (const section of sections) {
+        const element = document.getElementById(section.id);
+        if (element && element.offsetTop <= scrollPosition) {
+            current = section.id;
+        }
+    }
+
+    activeSection.value = current;
+}
+
+function scrollToSection(id: string): void {
+    mobileMenuOpen.value = false;
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+onMounted(() => {
+    prefersReducedMotion.value = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+    ).matches;
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    sectionObserver = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -48px 0px' },
+    );
+
+    document
+        .querySelectorAll('.reveal-section')
+        .forEach((element) => sectionObserver?.observe(element));
+});
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+    sectionObserver?.disconnect();
+});
 </script>
 
 <template>
-    <Head title="Welcome">
-        <link rel="preconnect" href="https://rsms.me/" />
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <Head title="Amanda & Andreas">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"
+            rel="stylesheet"
+        />
     </Head>
-    <div
-        class="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]"
-    >
+
+    <div class="page-root relative min-h-screen scroll-smooth bg-[#FBF5F7] text-[#3D2C35]">
         <div
-            class="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0"
+            class="ambient-bg pointer-events-none fixed inset-0 z-0 overflow-hidden"
+            aria-hidden="true"
         >
-            <main
-                class="flex w-full max-w-[335px] flex-col-reverse overflow-hidden rounded-lg lg:max-w-4xl lg:flex-row"
+            <div class="ambient-gradient ambient-gradient-shift absolute inset-0" />
+
+            <div
+                class="absolute inset-0"
+                :style="{ transform: blobParallax(0.12) }"
             >
                 <div
-                    class="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
-                >
-                    <h1 class="mb-1 font-medium">Let's get started</h1>
-                    <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                        Laravel has an incredibly rich ecosystem. <br />We
-                        suggest starting with the following.
-                    </p>
-                    <ul class="mb-4 flex flex-col lg:mb-6">
-                        <li
-                            class="relative flex items-center gap-4 py-2 before:absolute before:top-1/2 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]"
-                        >
-                            <span
-                                class="relative bg-white py-1 dark:bg-[#161615]"
-                            >
-                                <span
-                                    class="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
-                                >
-                                    <span
-                                        class="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]"
-                                    />
-                                </span>
-                            </span>
-                            <span>
-                                Read the
-                                <a
-                                    href="https://laravel.com/docs"
-                                    target="_blank"
-                                    class="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                >
-                                    <span>Documentation</span>
-                                    <svg
-                                        width="{10}"
-                                        height="{11}"
-                                        viewBox="0 0 10 11"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="h-2.5 w-2.5"
-                                    >
-                                        <path
-                                            d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                            stroke="currentColor"
-                                            stroke-linecap="square"
-                                        />
-                                    </svg>
-                                </a>
-                            </span>
-                        </li>
-                        <li
-                            class="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-1/2 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]"
-                        >
-                            <span
-                                class="relative bg-white py-1 dark:bg-[#161615]"
-                            >
-                                <span
-                                    class="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]"
-                                >
-                                    <span
-                                        class="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]"
-                                    />
-                                </span>
-                            </span>
-                            <span>
-                                Watch video tutorials at
-                                <a
-                                    href="https://laracasts.com"
-                                    target="_blank"
-                                    class="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                >
-                                    <span>Laracasts</span>
-                                    <svg
-                                        width="{10}"
-                                        height="{11}"
-                                        viewBox="0 0 10 11"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="h-2.5 w-2.5"
-                                    >
-                                        <path
-                                            d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                            stroke="currentColor"
-                                            stroke-linecap="square"
-                                        />
-                                    </svg>
-                                </a>
-                            </span>
-                        </li>
-                    </ul>
-                    <ul class="flex gap-3 text-sm leading-normal">
-                        <li>
-                            <a
-                                href="https://cloud.laravel.com"
-                                target="_blank"
-                                class="inline-block rounded-sm border border-black bg-[#1b1b18] px-5 py-1.5 text-sm leading-normal text-white hover:border-black hover:bg-black dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
-                            >
-                                Deploy now
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                    class="ambient-drift glow-pulse absolute -top-32 -right-20 h-[28rem] w-[28rem] rounded-full bg-[#E8C4D0]/55 blur-3xl"
+                />
+            </div>
+
+            <div
+                class="absolute inset-0"
+                :style="{ transform: blobParallax(-0.08, -0.04) }"
+            >
                 <div
-                    class="relative -mb-px aspect-[335/364] w-full shrink-0 overflow-hidden rounded-t-lg bg-[#fff2f2] lg:mb-0 lg:-ml-px lg:aspect-auto lg:w-[438px] lg:rounded-t-none lg:rounded-r-lg dark:bg-[#1D0002]"
-                >
-                    <!-- Laravel Logo -->
-                    <svg
-                        class="w-full max-w-none translate-y-0 text-[#F53003] opacity-100 transition-all duration-750 dark:text-[#F61500] starting:opacity-0 motion-safe:starting:translate-y-6"
-                        viewBox="0 0 438 104"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M17.2036 -3H0V102.197H49.5189V86.7187H17.2036V-3Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M110.256 41.6337C108.061 38.1275 104.945 35.3731 100.905 33.3681C96.8667 31.3647 92.8016 30.3618 88.7131 30.3618C83.4247 30.3618 78.5885 31.3389 74.201 33.2923C69.8111 35.2456 66.0474 37.928 62.9059 41.3333C59.7643 44.7401 57.3198 48.6726 55.5754 53.1293C53.8287 57.589 52.9572 62.274 52.9572 67.1813C52.9572 72.1925 53.8287 76.8995 55.5754 81.3069C57.3191 85.7173 59.7636 89.6241 62.9059 93.0293C66.0474 96.4361 69.8119 99.1155 74.201 101.069C78.5885 103.022 83.4247 103.999 88.7131 103.999C92.8016 103.999 96.8667 102.997 100.905 100.994C104.945 98.9911 108.061 96.2359 110.256 92.7282V102.195H126.563V32.1642H110.256V41.6337ZM108.76 75.7472C107.762 78.4531 106.366 80.8078 104.572 82.8112C102.776 84.8161 100.606 86.4183 98.0637 87.6206C95.5202 88.823 92.7004 89.4238 89.6103 89.4238C86.5178 89.4238 83.7252 88.823 81.2324 87.6206C78.7388 86.4183 76.5949 84.8161 74.7998 82.8112C73.004 80.8078 71.6319 78.4531 70.6856 75.7472C69.7356 73.0421 69.2644 70.1868 69.2644 67.1821C69.2644 64.1758 69.7356 61.3205 70.6856 58.6154C71.6319 55.9102 73.004 53.5571 74.7998 51.5522C76.5949 49.5495 78.738 47.9451 81.2324 46.7427C83.7252 45.5404 86.5178 44.9396 89.6103 44.9396C92.7012 44.9396 95.5202 45.5404 98.0637 46.7427C100.606 47.9451 102.776 49.5487 104.572 51.5522C106.367 53.5571 107.762 55.9102 108.76 58.6154C109.756 61.3205 110.256 64.1758 110.256 67.1821C110.256 70.1868 109.756 73.0421 108.76 75.7472Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M242.805 41.6337C240.611 38.1275 237.494 35.3731 233.455 33.3681C229.416 31.3647 225.351 30.3618 221.262 30.3618C215.974 30.3618 211.138 31.3389 206.75 33.2923C202.36 35.2456 198.597 37.928 195.455 41.3333C192.314 44.7401 189.869 48.6726 188.125 53.1293C186.378 57.589 185.507 62.274 185.507 67.1813C185.507 72.1925 186.378 76.8995 188.125 81.3069C189.868 85.7173 192.313 89.6241 195.455 93.0293C198.597 96.4361 202.361 99.1155 206.75 101.069C211.138 103.022 215.974 103.999 221.262 103.999C225.351 103.999 229.416 102.997 233.455 100.994C237.494 98.9911 240.611 96.2359 242.805 92.7282V102.195H259.112V32.1642H242.805V41.6337ZM241.31 75.7472C240.312 78.4531 238.916 80.8078 237.122 82.8112C235.326 84.8161 233.156 86.4183 230.614 87.6206C228.07 88.823 225.251 89.4238 222.16 89.4238C219.068 89.4238 216.275 88.823 213.782 87.6206C211.289 86.4183 209.145 84.8161 207.35 82.8112C205.554 80.8078 204.182 78.4531 203.236 75.7472C202.286 73.0421 201.814 70.1868 201.814 67.1821C201.814 64.1758 202.286 61.3205 203.236 58.6154C204.182 55.9102 205.554 53.5571 207.35 51.5522C209.145 49.5495 211.288 47.9451 213.782 46.7427C216.275 45.5404 219.068 44.9396 222.16 44.9396C225.251 44.9396 228.07 45.5404 230.614 46.7427C233.156 47.9451 235.326 49.5487 237.122 51.5522C238.917 53.5571 240.312 55.9102 241.31 58.6154C242.306 61.3205 242.806 64.1758 242.806 67.1821C242.805 70.1868 242.305 73.0421 241.31 75.7472Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M438 -3H421.694V102.197H438V-3Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M139.43 102.197H155.735V48.2834H183.712V32.1665H139.43V102.197Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M324.49 32.1665L303.995 85.794L283.498 32.1665H266.983L293.748 102.197H314.242L341.006 32.1665H324.49Z"
-                            fill="currentColor"
-                        />
-                        <path
-                            d="M376.571 30.3656C356.603 30.3656 340.797 46.8497 340.797 67.1828C340.797 89.6597 356.094 104 378.661 104C391.29 104 399.354 99.1488 409.206 88.5848L398.189 80.0226C398.183 80.031 389.874 90.9895 377.468 90.9895C363.048 90.9895 356.977 79.3111 356.977 73.269H411.075C413.917 50.1328 398.775 30.3656 376.571 30.3656ZM357.02 61.0967C357.145 59.7487 359.023 43.3761 376.442 43.3761C393.861 43.3761 395.978 59.7464 396.099 61.0967H357.02Z"
-                            fill="currentColor"
-                        />
-                    </svg>
+                    class="ambient-drift-reverse glow-pulse absolute top-[35%] -left-32 h-[26rem] w-[26rem] rounded-full bg-[#DDBDD0]/50 blur-3xl"
+                    style="animation-delay: 3s"
+                />
+            </div>
 
-                    <!-- 13 -->
-                    <svg
-                        class="relative -mt-[6.6rem] -ml-8 w-[438px] max-w-none [--stroke-color:#1B1B18] lg:ml-0 dark:[--stroke-color:#FF750F]"
-                        viewBox="0 0 440 392"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <g
-                            class="text-[#1B1B18] opacity-100 mix-blend-darken transition-all delay-300 duration-750 dark:text-black dark:mix-blend-normal starting:opacity-0"
-                        >
-                            <mask
-                                id="path-1-mask"
-                                maskUnits="userSpaceOnUse"
-                                x="-0.328613"
-                                y="103"
-                                width="338"
-                                height="299"
-                                fill="black"
-                            >
-                                <rect
-                                    fill="white"
-                                    x="-0.328613"
-                                    y="103"
-                                    width="338"
-                                    height="299"
-                                />
-                                <path
-                                    d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                />
-                                <path
-                                    d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                />
-                            </mask>
-                            <path
-                                d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-1-mask)"
-                            />
-                            <path
-                                d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-1-mask)"
-                            />
-                        </g>
+            <div
+                class="absolute inset-0"
+                :style="{ transform: blobParallax(0.06, 0.05) }"
+            >
+                <div
+                    class="ambient-drift glow-pulse absolute top-[62%] -right-24 h-[24rem] w-[24rem] rounded-full bg-[#C98FA0]/35 blur-3xl"
+                    style="animation-delay: 6s"
+                />
+            </div>
 
-                        <g
-                            class="text-[#F3BEC7] opacity-100 transition-all delay-400 duration-750 dark:text-[#4B0600] starting:opacity-0 motion-safe:starting:-translate-x-[26px]"
-                        >
-                            <mask
-                                id="path-2-mask"
-                                maskUnits="userSpaceOnUse"
-                                x="25.3357"
-                                y="103"
-                                width="338"
-                                height="299"
-                                fill="black"
-                            >
-                                <rect
-                                    fill="white"
-                                    x="25.3357"
-                                    y="103"
-                                    width="338"
-                                    height="299"
-                                />
-                                <path
-                                    d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                />
-                                <path
-                                    d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                />
-                            </mask>
-                            <path
-                                d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-2-mask)"
-                            />
-                            <path
-                                d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-2-mask)"
-                            />
-                        </g>
+            <div
+                class="absolute inset-0"
+                :style="{ transform: blobParallax(-0.05) }"
+            >
+                <div
+                    class="ambient-drift-reverse absolute top-[82%] left-[15%] h-80 w-80 rounded-full bg-[#F5EBEF]/90 blur-3xl"
+                    style="animation-delay: 1.5s"
+                />
+            </div>
 
-                        <g
-                            class="text-[#F8B803] opacity-100 mix-blend-color transition-all delay-400 duration-750 dark:text-[#391800] dark:mix-blend-hard-light starting:opacity-0 motion-safe:starting:-translate-x-[51px]"
-                        >
-                            <mask
-                                id="path-3-mask"
-                                maskUnits="userSpaceOnUse"
-                                x="51"
-                                y="103"
-                                width="338"
-                                height="299"
-                                fill="black"
-                            >
-                                <rect
-                                    fill="white"
-                                    x="51"
-                                    y="103"
-                                    width="338"
-                                    height="299"
-                                />
-                                <path
-                                    d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                />
-                                <path
-                                    d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                />
-                            </mask>
-                            <path
-                                d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-3-mask)"
-                            />
-                            <path
-                                d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-3-mask)"
-                            />
-                        </g>
-
-                        <g
-                            class="text-[#F3BEC7] opacity-100 mix-blend-multiply transition-all delay-400 duration-750 dark:text-[#733000] dark:mix-blend-normal starting:opacity-0 motion-safe:starting:-translate-x-[78px]"
-                        >
-                            <mask
-                                id="path-4-mask"
-                                maskUnits="userSpaceOnUse"
-                                x="76.6643"
-                                y="103"
-                                width="338"
-                                height="299"
-                                fill="black"
-                            >
-                                <rect
-                                    fill="white"
-                                    x="76.6643"
-                                    y="103"
-                                    width="338"
-                                    height="299"
-                                />
-                                <path
-                                    d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                />
-                                <path
-                                    d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                />
-                            </mask>
-                            <path
-                                d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-4-mask)"
-                            />
-                            <path
-                                d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-4-mask)"
-                            />
-                        </g>
-
-                        <g
-                            class="text-[#F3BEC7] opacity-100 mix-blend-hard-light transition-all delay-400 duration-750 dark:text-[#4B0600] starting:opacity-0 motion-safe:starting:-translate-x-[102px]"
-                        >
-                            <mask
-                                id="path-5-mask"
-                                maskUnits="userSpaceOnUse"
-                                x="102.329"
-                                y="103"
-                                width="338"
-                                height="299"
-                                fill="black"
-                            >
-                                <rect
-                                    fill="white"
-                                    x="102.329"
-                                    y="103"
-                                    width="338"
-                                    height="299"
-                                />
-                                <path
-                                    d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                />
-                                <path
-                                    d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                />
-                            </mask>
-                            <path
-                                d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                fill="currentColor"
-                            />
-                            <path
-                                d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-5-mask)"
-                            />
-                            <path
-                                d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                stroke="var(--stroke-color)"
-                                stroke-width="2.4"
-                                mask="url(#path-5-mask)"
-                            />
-                        </g>
-                    </svg>
-                    <div
-                        class="absolute inset-0 rounded-t-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-t-none lg:rounded-r-lg dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
-                    ></div>
-                </div>
-            </main>
+            <div
+                class="absolute inset-0"
+                :style="{ transform: blobParallax(0.04, -0.03) }"
+            >
+                <div
+                    class="ambient-drift absolute top-[18%] left-[55%] h-72 w-72 rounded-full bg-[#E8C4D0]/30 blur-3xl"
+                    style="animation-delay: 4s"
+                />
+            </div>
         </div>
+
+        <nav
+            class="fixed inset-x-0 top-0 z-50 transition-all duration-500"
+            :class="
+                navVisible || mobileMenuOpen
+                    ? 'border-b border-[#3D2C35]/8 bg-[#FBF5F7]/95 shadow-sm backdrop-blur-md'
+                    : 'bg-transparent'
+            "
+        >
+            <div
+                class="mx-auto flex max-w-3xl items-center justify-between px-6 py-4"
+            >
+                <button
+                    type="button"
+                    class="font-serif text-lg tracking-wide text-[#3D2C35] transition-opacity hover:opacity-70"
+                    @click="scrollToSection('hem')"
+                >
+                    A.N + A.S = A.N.S
+                </button>
+
+                <div class="hidden items-center gap-6 md:flex">
+                    <button
+                        v-for="section in sections"
+                        :key="section.id"
+                        type="button"
+                        class="text-sm tracking-wide uppercase transition-colors"
+                        :class="
+                            activeSection === section.id
+                                ? 'text-[#B87A8E]'
+                                : 'text-[#3D2C35]/55 hover:text-[#3D2C35]'
+                        "
+                        @click="scrollToSection(section.id)"
+                    >
+                        {{ section.label }}
+                    </button>
+                </div>
+
+                <button
+                    type="button"
+                    class="inline-flex size-10 items-center justify-center rounded-md text-[#3D2C35] transition-colors hover:bg-[#3D2C35]/5 md:hidden"
+                    :aria-expanded="mobileMenuOpen"
+                    aria-controls="mobile-nav"
+                    aria-label="Meny"
+                    @click="mobileMenuOpen = !mobileMenuOpen"
+                >
+                    <svg
+                        v-if="!mobileMenuOpen"
+                        class="size-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            d="M4 7h16M4 12h16M4 17h16"
+                        />
+                    </svg>
+                    <svg
+                        v-else
+                        class="size-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            d="M6 6l12 12M18 6L6 18"
+                        />
+                    </svg>
+                </button>
+            </div>
+
+            <div
+                v-show="mobileMenuOpen"
+                id="mobile-nav"
+                class="border-t border-[#3D2C35]/8 px-6 py-4 md:hidden"
+            >
+                <div class="flex flex-col gap-1">
+                    <button
+                        v-for="section in sections"
+                        :key="section.id"
+                        type="button"
+                        class="rounded-md px-3 py-2.5 text-left text-sm tracking-wide uppercase transition-colors"
+                        :class="
+                            activeSection === section.id
+                                ? 'bg-[#B87A8E]/10 text-[#B87A8E]'
+                                : 'text-[#3D2C35]/70 hover:bg-[#3D2C35]/5 hover:text-[#3D2C35]'
+                        "
+                        @click="scrollToSection(section.id)"
+                    >
+                        {{ section.label }}
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <header
+            id="hem"
+            class="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 pt-20 pb-16 text-center"
+        >
+            <BotanicalFlower
+                variant="flower-1"
+                :scale="1.15"
+                class="flower-float pointer-events-none absolute top-28 -left-2 sm:left-8"
+                style="animation-delay: 0s"
+            />
+            <BotanicalFlower
+                variant="flower-2"
+                :scale="1.05"
+                class="flower-float pointer-events-none absolute top-36 -right-2 sm:right-8"
+                flip
+                style="animation-delay: 1.5s"
+            />
+            <BotanicalFlower
+                variant="flower-3"
+                :scale="0.95"
+                class="flower-sway pointer-events-none absolute bottom-24 left-6 hidden md:block"
+                style="animation-delay: 0.8s"
+            />
+            <BotanicalFlower
+                variant="flower-4"
+                :scale="1.1"
+                class="flower-sway pointer-events-none absolute right-10 bottom-20 hidden md:block"
+                flip
+                style="animation-delay: 2.2s"
+            />
+
+            <div class="relative max-w-2xl">
+                <p
+                    class="hero-enter mb-6 text-sm tracking-[0.35em] text-[#B87A8E] uppercase"
+                >
+                    Vi gifter oss
+                </p>
+
+                <h1
+                    class="hero-enter hero-enter-delay-1 font-serif text-5xl leading-tight font-light tracking-wide sm:text-7xl"
+                >
+                    Amanda
+                    <span
+                        class="mx-3 block text-3xl text-[#C98FA0] italic sm:mx-0 sm:inline sm:text-4xl"
+                        >&</span
+                    >
+                    Andreas
+                </h1>
+
+                <FloralDivider class="hero-enter hero-enter-delay-2 mx-auto max-w-xs" />
+
+                <p
+                    class="hero-enter hero-enter-delay-2 mt-6 font-serif text-2xl text-[#3D2C35]/90 sm:text-3xl"
+                >
+                    1 augusti 2026
+                </p>
+
+                <blockquote
+                    class="hero-enter hero-enter-delay-4 mt-12 border-l-2 border-[#C98FA0]/40 pl-6 text-left text-base leading-relaxed text-[#3D2C35]/80 italic sm:text-lg"
+                >
+                    Den 1 augusti klockan 14 gifter vi oss under ekarna på
+                    Vadsbro Erlandstorp. Efter vigseln är ni välkomna hem till oss på
+                    picknick i trädgården — drop in från 15:30. Vi bjuder på
+                    välkomstdrink, enklare tilltugg, tårta och såklart
+                    finkaffe. Välkomna att dela dagen med oss.
+                </blockquote>
+            </div>
+
+            <button
+                type="button"
+                class="hero-enter hero-enter-delay-5 relative mt-16 flex flex-col items-center gap-2 text-sm tracking-widest text-[#B87A8E]/70 uppercase transition-colors hover:text-[#B87A8E]"
+                @click="scrollToSection('dagen')"
+            >
+                <span>Läs mer</span>
+                <svg
+                    class="h-5 w-5 animate-bounce"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19 9l-7 7-7-7"
+                    />
+                </svg>
+            </button>
+        </header>
+
+        <main class="relative z-10 mx-auto max-w-3xl px-6 pb-24">
+            <section id="dagen" class="reveal-section scroll-mt-20 py-16">
+                <SectionHeading subtitle="Schema" title="Dagen" />
+
+                <div class="mt-10 space-y-0">
+                    <TimelineItem
+                        badge="14"
+                        time="14:00"
+                        title="Vigsel"
+                        location="Vadsbro Erlandstorp"
+                        description="Vi gifter oss under ekarna. Hjärtligt välkommen att följa med på vigseln."
+                        :show-line="true"
+                    />
+                    <TimelineItem
+                        badge="15"
+                        time="15:30"
+                        title="Picknick"
+                        location="Gripensnäs 3"
+                        description="Drop in hem till oss i trädgården. Ta gärna med det ni vill dricka och äta; vi bjuder på välkomstdrink, tilltugg, tårta och finkaffe."
+                    />
+                </div>
+            </section>
+
+            <FloralDivider />
+
+            <section id="platser" class="reveal-section scroll-mt-20 py-16">
+                <SectionHeading subtitle="Hitta hit" title="Platser" />
+
+                <div
+                    class="card-hover mt-8 overflow-hidden rounded-xl border border-[#C98FA0]/25 bg-linear-to-br from-white/80 via-[#F5EBEF]/90 to-[#FBF5F7] shadow-sm backdrop-blur-sm"
+                >
+                    <div class="px-6 py-7 sm:px-8">
+                        <p
+                            class="text-center text-xs tracking-[0.25em] text-[#B87A8E] uppercase"
+                        >
+                            Mellan vigseln och picknicken
+                        </p>
+
+                        <div
+                            class="mt-6 flex flex-col items-stretch gap-5 sm:flex-row sm:items-center sm:gap-4"
+                        >
+                            <div class="text-center sm:flex-1">
+                                <p
+                                    class="text-xs tracking-widest text-[#B87A8E]/80 uppercase"
+                                >
+                                    Vigsel
+                                </p>
+                                <p class="mt-1 font-serif text-xl text-[#3D2C35]">
+                                    Vadsbro Erlandstorp
+                                </p>
+                            </div>
+
+                            <div
+                                class="flex items-center justify-center gap-3 sm:flex-1"
+                            >
+                                <div
+                                    class="hidden h-px flex-1 bg-linear-to-r from-transparent to-[#C98FA0]/40 sm:block"
+                                />
+                                <div
+                                    class="flex flex-col items-center gap-1 rounded-full border border-[#C98FA0]/30 bg-white/70 px-5 py-3 shadow-sm"
+                                >
+                                    <svg
+                                        class="h-5 w-5 text-[#B87A8E]"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+                                        />
+                                    </svg>
+                                    <p
+                                        class="font-serif text-2xl leading-none text-[#3D2C35]"
+                                    >
+                                        &lt; 10 min
+                                    </p>
+                                    <p class="text-[10px] tracking-widest text-[#B87A8E] uppercase">
+                                        Med bil
+                                    </p>
+                                </div>
+                                <div
+                                    class="hidden h-px flex-1 bg-linear-to-l from-transparent to-[#C98FA0]/40 sm:block"
+                                />
+                            </div>
+
+                            <div class="text-center sm:flex-1">
+                                <p
+                                    class="text-xs tracking-widest text-[#B87A8E]/80 uppercase"
+                                >
+                                    Picknick
+                                </p>
+                                <p class="mt-1 font-serif text-xl text-[#3D2C35]">
+                                    Gripensnäs 3
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-start gap-4 border-t border-[#C98FA0]/20 bg-[#F5EBEF]/50 px-6 py-5 sm:px-8"
+                    >
+                        <div
+                            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#C98FA0]/25 bg-white/80 text-[#B87A8E]"
+                        >
+                            <svg
+                                class="h-4.5 w-4.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                                />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium text-[#3D2C35]">
+                                Samåk gärna om ni kan
+                            </p>
+                            <p
+                                class="mt-1 text-sm leading-relaxed text-[#3D2C35]/75"
+                            >
+                                Det är begränsat med parkeringsplatser på både
+                                Erlandstorp och Gripensnäs — vi uppskattar om så
+                                många som möjligt kan samåka.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 space-y-12">
+                    <article
+                        v-for="location in locations"
+                        :key="location.name"
+                        class="card-hover overflow-hidden rounded-xl border border-[#3D2C35]/8 bg-white/70 shadow-sm backdrop-blur-sm"
+                    >
+                        <div class="p-6">
+                            <p
+                                class="text-xs tracking-widest text-[#B87A8E] uppercase"
+                            >
+                                {{ location.label }}
+                            </p>
+                            <h3 class="mt-1 font-serif text-2xl">
+                                {{ location.name }}
+                            </h3>
+                            <p class="mt-1 text-sm text-[#3D2C35]/65">
+                                {{ location.time }}
+                            </p>
+                            <p
+                                class="mt-4 text-sm leading-relaxed text-[#3D2C35]/75"
+                            >
+                                {{ location.parking }}
+                            </p>
+                            <p
+                                class="mt-3 text-sm leading-relaxed text-[#3D2C35]/75"
+                            >
+                                {{ location.animals }}
+                            </p>
+                            <a
+                                :href="location.mapUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#B87A8E] transition-colors hover:text-[#9E6678]"
+                            >
+                                Öppna i Google Maps
+                                <svg
+                                    class="h-3.5 w-3.5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                                    />
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="aspect-[16/10] w-full border-t border-[#3D2C35]/8">
+                            <iframe
+                                :src="location.embedUrl"
+                                :title="`Karta till ${location.name}`"
+                                class="h-full w-full"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                allowfullscreen
+                            />
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <FloralDivider />
+
+            <section id="picknick" class="reveal-section scroll-mt-20 py-16">
+                <SectionHeading subtitle="I trädgården" title="Picknick" />
+
+                <div
+                    class="mt-10 space-y-5 text-base leading-relaxed text-[#3D2C35]/85"
+                >
+                    <p>
+                        Utöver det vi bjuder på tar ni gärna med det ni själva
+                        vill dricka och äta. Grillar finns på plats, och ni
+                        får använda köket om ni vill.
+                    </p>
+                    <p>
+                        Stolar blir det begränsat med, men trädgården är stor —
+                        ta gärna med filt eller egna sittmöbler om ni vill sitta
+                        skönt.
+                    </p>
+                    <p
+                        class="flex items-center gap-3 rounded-lg border border-[#C98FA0]/25 bg-[#F5EBEF]/80 px-5 py-4 text-[#3D2C35]/75 backdrop-blur-sm"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="size-6"><path d="M320 32C337.7 32 352 46.3 352 64L352 66C478.3 81.7 576 189.5 576 320C576 323.8 575.9 327.5 575.8 331.3C575.5 338.2 570.8 344.1 564.1 346C557.4 347.9 550.3 345.3 546.5 339.5C532.1 318.1 507.7 304 480 304C450.7 304 425.1 319.7 411.1 343.3C408.4 347.9 403.5 350.9 398.1 351.1C392.7 351.3 387.6 348.9 384.4 344.6C369.8 324.8 346.4 312 319.9 312C293.4 312 270 324.8 255.4 344.6C252.2 348.9 247.1 351.4 241.7 351.1C236.3 350.8 231.5 347.9 228.7 343.3C214.7 319.7 189.1 304 159.8 304C132.1 304 107.7 318.1 93.3 339.5C89.4 345.2 82.3 347.9 75.7 346C69.1 344.1 64.5 338.2 64.2 331.3C64.1 327.5 64 323.8 64 320C64 189.5 161.7 81.7 288 66L288 64C288 46.3 302.3 32 320 32zM352 392L352 494.6C352 539.6 315.5 576 270.6 576C239.8 576 211.6 558.6 197.8 531L195.5 526.3C187.6 510.5 194 491.3 209.8 483.4C225.6 475.5 244.8 481.9 252.7 497.7L255 502.4C258 508.3 264 512 270.6 512C280.2 512 288 504.2 288 494.6L288 392C288 374.3 302.3 360 320 360C337.7 360 352 374.3 352 392z"/></svg>
+                        <span>
+                            Regnar det får vi trängas inomhus istället.
+                        </span>
+                    </p>
+                </div>
+            </section>
+
+            <FloralDivider />
+
+            <section id="gavor" class="reveal-section scroll-mt-20 py-16">
+                <SectionHeading
+                    subtitle="Vi har allt vi behöver"
+                    title="Inga gåvor"
+                />
+
+                <div
+                    class="mt-10 space-y-5 text-base leading-relaxed text-[#3D2C35]/85"
+                >
+                    <p>
+                        <strong>Vi önskar oss inget</strong> — de som känner oss vet att
+                        vi redan har för mycket av möbler och porslin.
+                    </p>
+                    <p>
+                        Vill ni ändå ge något uppskattar vi om ni skriver ned tips på trevliga
+                        utflyktsmål, böcker eller filmer — gärna med en kort
+                        motivering om varför ni tror vi skulle gilla det.
+                    </p>
+                </div>
+            </section>
+
+            <FloralDivider />
+
+            <section id="kladsel" class="reveal-section scroll-mt-20 py-16">
+                <SectionHeading subtitle="Känn er bekväma" title="Klädsel" />
+
+                <p
+                    class="mt-10 text-center font-serif text-2xl leading-relaxed text-[#3D2C35]/90 italic sm:text-3xl"
+                >
+                    Klä er i det ni känner er bekväma i. Vi gillar att klä upp oss, men vill ni komma i flannelpyjamas så går det också bra.
+                </p>
+            </section>
+        </main>
+
+        <footer class="relative z-10 border-t border-[#3D2C35]/8 px-6 py-12 text-center">
+            <FloralDivider class="pb-2" />
+            <p class="font-serif text-2xl text-[#3D2C35]">
+                Amanda & Andreas
+            </p>
+            <p class="mt-2 text-sm tracking-widest text-[#B87A8E] uppercase">
+                1 augusti 2026
+            </p>
+        </footer>
     </div>
 </template>
+
+<script lang="ts">
+import { defineComponent, h } from 'vue';
+
+const SectionHeading = defineComponent({
+    name: 'SectionHeading',
+    props: {
+        title: { type: String, required: true },
+        subtitle: { type: String, required: true },
+    },
+    setup(props) {
+        return () =>
+            h('div', { class: 'text-center' }, [
+                h(
+                    'p',
+                    {
+                        class: 'text-sm tracking-[0.3em] text-[#B87A8E] uppercase',
+                    },
+                    props.subtitle,
+                ),
+                h(
+                    'h2',
+                    {
+                        class: 'mt-3 font-serif text-4xl font-light tracking-wide text-[#3D2C35] sm:text-5xl',
+                    },
+                    props.title,
+                ),
+                h('div', {
+                    class: 'mx-auto mt-6 h-px w-16 bg-linear-to-r from-transparent via-[#C98FA0]/40 to-transparent',
+                }),
+            ]);
+    },
+});
+
+const TimelineItem = defineComponent({
+    name: 'TimelineItem',
+    props: {
+        badge: { type: String, required: true },
+        time: { type: String, required: true },
+        title: { type: String, required: true },
+        location: { type: String, required: true },
+        description: { type: String, required: true },
+        showLine: { type: Boolean, default: false },
+    },
+    setup(props) {
+        return () =>
+            h('div', { class: 'relative flex gap-6' }, [
+                h('div', { class: 'flex flex-col items-center' }, [
+                    h('div', {
+                        class: 'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#C98FA0]/35 bg-[#F5EBEF] font-serif text-sm text-[#B87A8E] shadow-sm',
+                    }, props.badge),
+                    props.showLine &&
+                        h('div', {
+                            class: 'mt-2 w-px grow bg-linear-to-b from-[#C98FA0]/30 to-[#C98FA0]/10',
+                        }),
+                ]),
+                h('div', { class: props.showLine ? 'pb-8' : '' }, [
+                    h(
+                        'p',
+                        {
+                            class: 'text-sm tracking-widest text-[#B87A8E] uppercase',
+                        },
+                        props.time,
+                    ),
+                    h(
+                        'h3',
+                        {
+                            class: 'mt-1 font-serif text-2xl text-[#3D2C35]',
+                        },
+                        props.title,
+                    ),
+                    h(
+                        'p',
+                        {
+                            class: 'mt-1 text-sm font-medium text-[#B87A8E]',
+                        },
+                        props.location,
+                    ),
+                    h(
+                        'p',
+                        {
+                            class: 'mt-3 text-base leading-relaxed text-[#3D2C35]/80',
+                        },
+                        props.description,
+                    ),
+                ]),
+            ]);
+    },
+});
+
+export default {
+    components: {
+        SectionHeading,
+        TimelineItem,
+    },
+};
+</script>
+
+<style scoped>
+.font-serif {
+    font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+}
+
+.page-root::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.ambient-gradient {
+    background:
+        radial-gradient(
+            circle at 18% 22%,
+            rgb(201 143 160 / 0.22) 0%,
+            transparent 42%
+        ),
+        radial-gradient(
+            circle at 82% 68%,
+            rgb(184 122 142 / 0.18) 0%,
+            transparent 40%
+        ),
+        radial-gradient(
+            circle at 50% 100%,
+            rgb(245 235 239 / 0.35) 0%,
+            transparent 50%
+        );
+}
+
+.ambient-gradient-shift {
+    background-size:
+        140% 140%,
+        130% 130%,
+        120% 120%;
+    animation: ambient-gradient-shift 24s ease-in-out infinite;
+}
+
+@keyframes ambient-gradient-shift {
+    0%,
+    100% {
+        background-position:
+            0% 0%,
+            100% 100%,
+            50% 100%;
+    }
+    50% {
+        background-position:
+            100% 50%,
+            0% 0%,
+            50% 80%;
+    }
+}
+
+@keyframes ambient-drift {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(2%, -3%) scale(1.04);
+    }
+    66% {
+        transform: translate(-2%, 2%) scale(0.98);
+    }
+}
+
+@keyframes ambient-drift-reverse {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(-2%, 2%) scale(1.03);
+    }
+    66% {
+        transform: translate(3%, -2%) scale(0.97);
+    }
+}
+
+.ambient-drift {
+    animation: ambient-drift 18s ease-in-out infinite;
+}
+
+.ambient-drift-reverse {
+    animation: ambient-drift-reverse 22s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+@keyframes flower-sway {
+    0%,
+    100% {
+        transform: rotate(-4deg) translateY(0);
+    }
+    50% {
+        transform: rotate(4deg) translateY(-5px);
+    }
+}
+
+@keyframes flower-float {
+    0%,
+    100% {
+        transform: translateY(0) rotate(-6deg);
+    }
+    50% {
+        transform: translateY(-14px) rotate(6deg);
+    }
+}
+
+@keyframes hero-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.flower-sway {
+    animation: flower-sway 5.5s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+.flower-float {
+    animation: flower-float 8s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+.glow-pulse {
+    animation: glow-pulse 10s ease-in-out infinite;
+}
+
+.hero-enter {
+    opacity: 0;
+    animation: hero-fade-up 1s ease-out forwards;
+}
+
+.hero-enter-delay-1 {
+    animation-delay: 0.15s;
+}
+
+.hero-enter-delay-2 {
+    animation-delay: 0.3s;
+}
+
+.hero-enter-delay-3 {
+    animation-delay: 0.45s;
+}
+
+.hero-enter-delay-4 {
+    animation-delay: 0.6s;
+}
+
+.hero-enter-delay-5 {
+    animation-delay: 0.75s;
+}
+
+.reveal-section {
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+        opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card-hover {
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -8px rgb(184 122 142 / 0.25);
+    border-color: rgb(201 143 160 / 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ambient-gradient-shift,
+    .ambient-drift,
+    .ambient-drift-reverse,
+    .flower-sway,
+    .flower-float,
+    .glow-pulse,
+    .hero-enter {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .reveal-section {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .card-hover:hover {
+        transform: none;
+    }
+}
+</style>
