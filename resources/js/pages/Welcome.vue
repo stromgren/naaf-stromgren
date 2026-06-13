@@ -110,7 +110,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head title="Amanda & Andreas">
+    <Head title="Amanda & Andreas · 1 augusti 2026">
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
