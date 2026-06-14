@@ -639,20 +639,24 @@ onUnmounted(() => {
                 </p>
             </section>
 
-            <figure
-                class="reveal-section mx-auto max-w-md px-6 pb-8 text-center"
-            >
-                <img
-                    src="/images/tree-carving.png"
-                    alt="Ristning i träd: A.N + A.S = A.N.S med ett hjärta runt"
-                    class="mx-auto w-full rounded-sm"
-                    loading="lazy"
-                />
-                <figcaption class="mt-6 text-[#3D2C35]/90">
-                    Vi planerar att ta varandras efternamn. Som gifta kommer vi heta
-                    Nääf Strömgren.
-                </figcaption>
-            </figure>
+            <FloralDivider />
+
+            <section id="namn" class="reveal-section scroll-mt-20 py-16">
+                <SectionHeading subtitle="Som gifta" title="Nääf Strömgren" />
+
+                <figure class="mx-auto mt-10 max-w-md text-center">
+                    <img
+                        src="/images/tree-carving.png"
+                        alt="Ristning i träd: A.N + A.S = A.N.S med ett hjärta runt"
+                        class="mx-auto w-full rounded-sm"
+                        loading="lazy"
+                    />
+                    <figcaption class="mt-6 text-[#3D2C35]/90">
+                        Vi planerar att ta varandras efternamn. Som gifta kommer vi heta
+                        Nääf Strömgren.
+                    </figcaption>
+                </figure>
+            </section>
         </main>
 
         <footer class="relative z-10 border-t border-[#3D2C35]/8 px-6 py-12 text-center">
