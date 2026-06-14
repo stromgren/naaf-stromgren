@@ -18,7 +18,7 @@ const locations = [
         name: 'Erlandstorp',
         time: 'Kl. 14:00',
         parking:
-            'Parkera längs vägen, framför garaget eller på stallplan.',
+            'Erlandstorp är en privat hästgård. Parkera längs vägen, framför garaget eller på stallplan.',
         animals:
             'På Erlandstorp finns hästar, får, hundar och katter.',
         mapUrl: 'https://maps.app.goo.gl/AFJTfsf56wWRnJts6',
@@ -30,7 +30,7 @@ const locations = [
         name: 'Gripensnäs 3',
         time: 'Drop in från kl. 15:30',
         parking:
-            'Parkera på grusplanen innan och framför ladugården, eller längs vägen fram till herrgården — det går bra i alla väder. Gräsmattan framför huset går att använda endast vid torrt väder.',
+            'Hemma hos oss. Parkera på grusplanen innan och framför ladugården, eller längs vägen fram till herrgården — det går bra i alla väder. Gräsmattan framför huset går att använda endast vid torrt väder.',
         animals: 'På Gripensnäs finns våra katter Sixten och Wilma. Om ni har tur kanske ni kan få se en ko eller två eller en fasan.',
         mapUrl: 'https://maps.app.goo.gl/858kHGPnCnJdh4HN9',
         embedUrl:
@@ -51,8 +51,11 @@ function blobParallax(scrollFactor: number, horizontalFactor?: number): string {
         return '';
     }
 
-    const x = scrollY.value * (horizontalFactor ?? scrollFactor * 0.3);
     const y = scrollY.value * scrollFactor;
+    const x =
+        window.innerWidth >= 768
+            ? scrollY.value * (horizontalFactor ?? scrollFactor * 0.3)
+            : 0;
 
     return `translate3d(${x}px, ${y}px, 0)`;
 }
@@ -119,7 +122,7 @@ onUnmounted(() => {
         />
     </Head>
 
-    <div class="page-root relative min-h-screen scroll-smooth bg-[#FBF5F7] text-[#3D2C35]">
+    <div class="page-root relative min-h-screen overflow-x-hidden scroll-smooth bg-[#FBF5F7] text-[#3D2C35]">
         <div
             class="ambient-bg pointer-events-none fixed inset-0 z-0 overflow-hidden"
             aria-hidden="true"
@@ -203,7 +206,7 @@ onUnmounted(() => {
                         class="text-sm tracking-wide uppercase transition-colors"
                         :class="
                             activeSection === section.id
-                                ? 'text-[#B87A8E]'
+                                ? 'text-accent-rose'
                                 : 'text-[#3D2C35]/55 hover:text-[#3D2C35]'
                         "
                         @click="scrollToSection(section.id)"
@@ -264,7 +267,7 @@ onUnmounted(() => {
                         class="rounded-md px-3 py-2.5 text-left text-sm tracking-wide uppercase transition-colors"
                         :class="
                             activeSection === section.id
-                                ? 'bg-[#B87A8E]/10 text-[#B87A8E]'
+                                ? 'bg-accent-rose/10 text-accent-rose'
                                 : 'text-[#3D2C35]/70 hover:bg-[#3D2C35]/5 hover:text-[#3D2C35]'
                         "
                         @click="scrollToSection(section.id)"
@@ -277,38 +280,42 @@ onUnmounted(() => {
 
         <header
             id="hem"
-            class="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 pt-20 pb-16 text-center"
+            class="relative z-10 flex min-h-screen flex-col items-center justify-center overflow-x-hidden px-6 pt-20 pb-16 text-center"
         >
             <BotanicalFlower
                 variant="flower-1"
                 :scale="1.15"
-                class="flower-float pointer-events-none absolute top-28 -left-2 sm:left-8"
-                style="animation-delay: 0s"
+                :delay="0"
+                :duration="8"
+                class="pointer-events-none absolute top-28 -left-2 sm:left-8"
             />
             <BotanicalFlower
                 variant="flower-2"
                 :scale="1.05"
-                class="flower-float pointer-events-none absolute top-36 -right-2 sm:right-8"
+                :delay="1.5"
+                :duration="9"
+                class="pointer-events-none absolute top-36 -right-2 sm:right-8"
                 flip
-                style="animation-delay: 1.5s"
             />
             <BotanicalFlower
                 variant="flower-3"
                 :scale="0.95"
-                class="flower-sway pointer-events-none absolute bottom-24 left-6 hidden md:block"
-                style="animation-delay: 0.8s"
+                :delay="0.8"
+                :duration="10"
+                class="pointer-events-none absolute bottom-24 left-6 hidden md:block"
             />
             <BotanicalFlower
                 variant="flower-4"
                 :scale="1.1"
-                class="flower-sway pointer-events-none absolute right-10 bottom-20 hidden md:block"
+                :delay="2.2"
+                :duration="8.5"
+                class="pointer-events-none absolute right-10 bottom-20 hidden md:block"
                 flip
-                style="animation-delay: 2.2s"
             />
 
             <div class="relative max-w-2xl">
                 <p
-                    class="hero-enter mb-6 text-sm tracking-[0.35em] text-[#B87A8E] uppercase"
+                    class="hero-enter mb-6 text-sm tracking-[0.35em] text-accent-rose uppercase"
                 >
                     Vi gifter oss
                 </p>
@@ -333,9 +340,9 @@ onUnmounted(() => {
                 </p>
 
                 <blockquote
-                    class="hero-enter hero-enter-delay-4 mt-12 border-l-2 border-[#C98FA0]/40 pl-6 text-left text-base leading-relaxed text-[#3D2C35]/80 italic sm:text-lg"
+                    class="hero-enter hero-enter-delay-4 mt-6 border-l-2 border-[#C98FA0]/40 pl-6 text-left text-xl leading-relaxed text-[#3D2C35]/80"
                 >
-                    Den 1 augusti klockan 14 gifter vi oss under ekarna på
+                    Välkommen att vara med den 1 augusti klockan 14 när vi gifter oss under ekarna på
                     Vadsbro Erlandstorp. Efter vigseln är ni välkomna hem till oss på
                     picknick i trädgården — drop in från 15:30. Vi bjuder på
                     välkomstdrink, enklare tilltugg, tårta och såklart
@@ -345,7 +352,7 @@ onUnmounted(() => {
 
             <button
                 type="button"
-                class="hero-enter hero-enter-delay-5 relative mt-16 flex flex-col items-center gap-2 text-sm tracking-widest text-[#B87A8E]/70 uppercase transition-colors hover:text-[#B87A8E]"
+                class="hero-enter hero-enter-delay-5 relative mt-16 flex flex-col items-center gap-2 text-sm tracking-widest text-accent-rose uppercase transition-colors hover:text-accent-rose-hover"
                 @click="scrollToSection('dagen')"
             >
                 <span>Läs mer</span>
@@ -365,7 +372,7 @@ onUnmounted(() => {
             </button>
         </header>
 
-        <main class="relative z-10 mx-auto max-w-3xl px-6 pb-24">
+        <main class="relative z-10 mx-auto max-w-3xl px-6 pb-24 text-xl leading-relaxed">
             <section id="dagen" class="reveal-section scroll-mt-20 py-16">
                 <SectionHeading subtitle="Schema" title="Dagen" />
 
@@ -375,7 +382,7 @@ onUnmounted(() => {
                         time="14:00"
                         title="Vigsel"
                         location="Vadsbro Erlandstorp"
-                        description="Vi gifter oss under ekarna. Hjärtligt välkommen att följa med på vigseln."
+                        description="Vi gifter oss under ekarna nedanför bostadshuset. Hjärtligt välkommen att vara med på vigseln."
                         :show-line="true"
                     />
                     <TimelineItem
@@ -398,7 +405,7 @@ onUnmounted(() => {
                 >
                     <div class="px-6 py-7 sm:px-8">
                         <p
-                            class="text-center text-xs tracking-[0.25em] text-[#B87A8E] uppercase"
+                            class="text-center text-sm tracking-[0.3em] text-accent-rose uppercase"
                         >
                             Mellan vigseln och picknicken
                         </p>
@@ -408,7 +415,7 @@ onUnmounted(() => {
                         >
                             <div class="text-center sm:flex-1">
                                 <p
-                                    class="text-xs tracking-widest text-[#B87A8E]/80 uppercase"
+                                    class="text-sm tracking-[0.3em] text-accent-rose uppercase"
                                 >
                                     Vigsel
                                 </p>
@@ -427,7 +434,7 @@ onUnmounted(() => {
                                     class="flex flex-col items-center gap-1 rounded-full border border-[#C98FA0]/30 bg-white/70 px-5 py-3 shadow-sm"
                                 >
                                     <svg
-                                        class="h-5 w-5 text-[#B87A8E]"
+                                        class="h-5 w-5 text-accent-rose"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -445,7 +452,7 @@ onUnmounted(() => {
                                     >
                                         &lt; 10 min
                                     </p>
-                                    <p class="text-[10px] tracking-widest text-[#B87A8E] uppercase">
+                                    <p class="text-xs tracking-[0.3em] text-accent-rose uppercase">
                                         Med bil
                                     </p>
                                 </div>
@@ -456,7 +463,7 @@ onUnmounted(() => {
 
                             <div class="text-center sm:flex-1">
                                 <p
-                                    class="text-xs tracking-widest text-[#B87A8E]/80 uppercase"
+                                    class="text-sm tracking-[0.3em] text-accent-rose uppercase"
                                 >
                                     Picknick
                                 </p>
@@ -471,7 +478,7 @@ onUnmounted(() => {
                         class="flex items-start gap-4 border-t border-[#C98FA0]/20 bg-[#F5EBEF]/50 px-6 py-5 sm:px-8"
                     >
                         <div
-                            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#C98FA0]/25 bg-white/80 text-[#B87A8E]"
+                            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#C98FA0]/25 bg-white/80 text-accent-rose"
                         >
                             <svg
                                 class="h-4.5 w-4.5"
@@ -493,7 +500,7 @@ onUnmounted(() => {
                                 Samåk gärna om ni kan
                             </p>
                             <p
-                                class="mt-1 text-sm leading-relaxed text-[#3D2C35]/75"
+                                class="mt-1 text-[#3D2C35]/75"
                             >
                                 Det är begränsat med parkeringsplatser på både
                                 Erlandstorp och Gripensnäs — vi uppskattar om så
@@ -511,24 +518,24 @@ onUnmounted(() => {
                     >
                         <div class="p-6">
                             <p
-                                class="text-xs tracking-widest text-[#B87A8E] uppercase"
+                                class="text-sm tracking-[0.3em] text-accent-rose uppercase"
                             >
                                 {{ location.label }}
                             </p>
-                            <h3 class="mt-1 font-serif text-2xl">
+                            <h3 class="mt-1 font-serif text-3xl">
                                 {{ location.name }}
                             </h3>
-                            <p class="mt-1 text-sm text-[#3D2C35]/65">
+                            <p class="mt-1 text-[#3D2C35]/65">
                                 {{ location.time }}
                             </p>
                             <p
-                                class="mt-4 text-sm leading-relaxed text-[#3D2C35]/75"
+                                class="mt-4 text-[#3D2C35]/75"
                             >
                                 {{ location.parking }}
                             </p>
                             <p
                                 v-if="location.animals"
-                                class="mt-3 text-sm leading-relaxed text-[#3D2C35]/75"
+                                class="mt-3 text-[#3D2C35]/75"
                             >
                                 {{ location.animals }}
                             </p>
@@ -536,7 +543,7 @@ onUnmounted(() => {
                                 :href="location.mapUrl"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#B87A8E] transition-colors hover:text-[#9E6678]"
+                                class="mt-4 inline-flex items-center gap-1.5 font-medium text-accent-rose transition-colors hover:text-accent-rose-hover"
                             >
                                 Öppna i Google Maps
                                 <svg
@@ -574,7 +581,7 @@ onUnmounted(() => {
                 <SectionHeading subtitle="I trädgården" title="Picknick" />
 
                 <div
-                    class="mt-10 space-y-5 text-base leading-relaxed text-[#3D2C35]/85"
+                    class="mt-10 space-y-5 text-[#3D2C35]/85"
                 >
                     <p>
                         Utöver det vi bjuder på tar ni gärna med det ni själva
@@ -606,11 +613,10 @@ onUnmounted(() => {
                 />
 
                 <div
-                    class="mt-10 space-y-5 text-base leading-relaxed text-[#3D2C35]/85"
+                    class="mt-10 space-y-5 text-[#3D2C35]/85"
                 >
                     <p>
-                        <strong>Vi önskar oss inget</strong> — de som känner oss vet att
-                        vi redan har för mycket av möbler och porslin.
+                        <strong>Vi önskar oss inget</strong> — vi har redan huset fullt med arvegods och porslin, mer går inte in.
                     </p>
                     <p>
                         Vill ni ändå ge något uppskattar vi om ni skriver ned tips på trevliga
@@ -626,12 +632,27 @@ onUnmounted(() => {
                 <SectionHeading subtitle="Känn er bekväma" title="Klädsel" />
 
                 <p
-                    class="mt-10 text-center font-serif text-2xl leading-relaxed text-[#3D2C35]/90 italic sm:text-3xl"
+                    class="mt-10 text-center text-[#3D2C35]/90"
                 >
-                    Klä er i det ni känner er bekväma i. Vi gillar att klä upp oss, men vill ni komma i
-                    flannelpyjamas så går det också bra.
+                    Vi gillar att klä upp oss, men vill ni komma i
+                    vardagsklädsel eller flannelpyjamas så går det också bra. Klä er i det ni känner er bekväma i.
                 </p>
             </section>
+
+            <figure
+                class="reveal-section mx-auto max-w-md px-6 pb-8 text-center"
+            >
+                <img
+                    src="/images/tree-carving.png"
+                    alt="Ristning i träd: A.N + A.S = A.N.S med ett hjärta runt"
+                    class="mx-auto w-full rounded-sm"
+                    loading="lazy"
+                />
+                <figcaption class="mt-6 text-[#3D2C35]/90">
+                    Vi planerar att ta varandras efternamn. Som gifta kommer vi heta
+                    Nääf Strömgren.
+                </figcaption>
+            </figure>
         </main>
 
         <footer class="relative z-10 border-t border-[#3D2C35]/8 px-6 py-12 text-center">
@@ -639,7 +660,7 @@ onUnmounted(() => {
             <p class="font-serif text-2xl text-[#3D2C35]">
                 Amanda & Andreas
             </p>
-            <p class="mt-2 text-sm tracking-widest text-[#B87A8E] uppercase">
+            <p class="mt-2 text-sm tracking-widest text-accent-rose uppercase">
                 1 augusti 2026
             </p>
         </footer>
@@ -661,7 +682,7 @@ const SectionHeading = defineComponent({
                 h(
                     'p',
                     {
-                        class: 'text-sm tracking-[0.3em] text-[#B87A8E] uppercase',
+                        class: 'text-sm tracking-[0.3em] text-accent-rose uppercase',
                     },
                     props.subtitle,
                 ),
@@ -694,7 +715,7 @@ const TimelineItem = defineComponent({
             h('div', { class: 'relative flex gap-6' }, [
                 h('div', { class: 'flex flex-col items-center' }, [
                     h('div', {
-                        class: 'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#C98FA0]/35 bg-[#F5EBEF] font-serif text-sm text-[#B87A8E] shadow-sm',
+                        class: 'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#C98FA0]/35 bg-[#F5EBEF] font-serif text-sm text-accent-rose shadow-sm',
                     }, props.badge),
                     props.showLine &&
                         h('div', {
@@ -705,7 +726,7 @@ const TimelineItem = defineComponent({
                     h(
                         'p',
                         {
-                            class: 'text-sm tracking-widest text-[#B87A8E] uppercase',
+                            class: 'text-sm tracking-widest text-accent-rose uppercase',
                         },
                         props.time,
                     ),
@@ -719,14 +740,14 @@ const TimelineItem = defineComponent({
                     h(
                         'p',
                         {
-                            class: 'mt-1 text-sm font-medium text-[#B87A8E]',
+                            class: 'mt-1 font-medium text-accent-rose',
                         },
                         props.location,
                     ),
                     h(
                         'p',
                         {
-                            class: 'mt-3 text-base leading-relaxed text-[#3D2C35]/80',
+                            class: 'mt-3 text-[#3D2C35]/80',
                         },
                         props.description,
                     ),
@@ -845,26 +866,6 @@ export default {
     }
 }
 
-@keyframes flower-sway {
-    0%,
-    100% {
-        transform: rotate(-4deg) translateY(0);
-    }
-    50% {
-        transform: rotate(4deg) translateY(-5px);
-    }
-}
-
-@keyframes flower-float {
-    0%,
-    100% {
-        transform: translateY(0) rotate(-6deg);
-    }
-    50% {
-        transform: translateY(-14px) rotate(6deg);
-    }
-}
-
 @keyframes hero-fade-up {
     from {
         opacity: 0;
@@ -874,16 +875,6 @@ export default {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.flower-sway {
-    animation: flower-sway 5.5s ease-in-out infinite;
-    transform-origin: bottom center;
-}
-
-.flower-float {
-    animation: flower-float 8s ease-in-out infinite;
-    transform-origin: bottom center;
 }
 
 .glow-pulse {
@@ -945,8 +936,6 @@ export default {
     .ambient-gradient-shift,
     .ambient-drift,
     .ambient-drift-reverse,
-    .flower-sway,
-    .flower-float,
     .glow-pulse,
     .hero-enter {
         animation: none;
